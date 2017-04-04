@@ -1,5 +1,8 @@
 # crf4j: CRF model training and testing for Java #
+
+[![Build Status](https://travis-ci.org/zhifac/crf4j.svg?branch=master)](https://travis-ci.org/zhifac/crf4j)
 ----
+
 This is a pure Java port of taku's [crfpp](http://taku910.github.io/crfpp/ "crfpp")(also known as crf++), which is based on codes of crfpp-0.58.
 
 Credits to [komiya](https://github.com/komiya-atsushi/darts-java)'s for his Java double array trie implementation.
