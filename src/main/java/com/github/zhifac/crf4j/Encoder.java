@@ -192,6 +192,10 @@ public class Encoder {
                     threads.get(0).expected[k] += alpha[k] / C;
                 }
             }
+            for (int i = 1; i < threadNum; i++) {
+                // try to free some memory
+                threads.get(i).expected = null;
+            }
 
             double diff = (itr == 0 ? 1.0 : Math.abs(oldObj - threads.get(0).obj) / oldObj);
             StringBuilder b = new StringBuilder();

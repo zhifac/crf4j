@@ -10,7 +10,7 @@ public class LbfgsOptimizer {
     int iflag_, iscn, nfev, iycn, point, npt, iter, info, ispt, isyt, iypt, maxfev;
     double stp, stp1;
     double[] diag_ = null;
-    List<Double> w_ = null;
+    double[] w_ = null;
     double[] v_ = null;
     double[] xi_ = null;
     Mcsrch mcsrch_ = null;
@@ -41,7 +41,7 @@ public class LbfgsOptimizer {
                        double f,
                        double[] g,
                        double[] diag,
-                       List<Double> w, boolean orthant, double C,
+                       double[] w, boolean orthant, double C,
                        double[] v, double[] xi, int iflag) {
         double yy = 0.0;
         double ys = 0.0;
@@ -67,9 +67,9 @@ public class LbfgsOptimizer {
             ispt = size + (msize << 1);
             iypt = ispt + size * msize;
             for (int i = 0; i < size; ++i) {
-                w.set(ispt + i, -v[i] * diag[i]);
+                w[ispt + i] = -v[i] * diag[i];
             }
-            stp1 = 1.0 / Math.sqrt(Mcsrch.ddot_(size, v, v));
+            stp1 = 1.0 / Math.sqrt(Mcsrch.ddot_(size, v, 0, v, 0));
         }
 
         // MAIN ITERATION LOOP
@@ -88,8 +88,8 @@ public class LbfgsOptimizer {
                     // COMPUTE -H*G USING THE FORMULA GIVEN IN: Nocedal, J. 1980,
                     // "Updating quasi-Newton matrices with limited storage",
                     // Mathematics of Computation, Vol.24, No.151, pp. 773-782.
-                    ys = Mcsrch.ddot_(size, w.subList(iypt + npt, w.size()), w.subList(ispt + npt, w.size()));
-                    yy = Mcsrch.ddot_(size, w.subList(iypt + npt, w.size()), w.subList(iypt + npt, w.size()));
+                    ys = Mcsrch.ddot_(size, w, iypt + npt, w, ispt + npt);
+                    yy = Mcsrch.ddot_(size, w, iypt + npt, w, iypt + npt);
                     for (int i = 0; i < size; ++i) {
                         diag[i] = ys / yy;
                     }
@@ -100,10 +100,10 @@ public class LbfgsOptimizer {
                 if (point == 0) {
                     cp = msize;
                 }
-                w.set(size + cp - 1, 1.0 / ys);
+                w[size + cp - 1] = 1.0 / ys;
 
                 for (int i = 0; i < size; ++i) {
-                    w.set(i, -v[i]);
+                    w[i] = -v[i];
                 }
 
                 bound = Math.min(iter - 1, msize);
@@ -114,25 +114,25 @@ public class LbfgsOptimizer {
                     if (cp == -1) {
                         cp = msize - 1;
                     }
-                    double sq = Mcsrch.ddot_(size, w.subList(ispt + cp * size, w.size()), w);
+                    double sq = Mcsrch.ddot_(size, w, ispt + cp * size, w, 0);
                     int inmc = size + msize + cp;
                     iycn = iypt + cp * size;
-                    w.set(inmc, w.get(size + cp) * sq);
-                    double d = -w.get(inmc);
-                    Mcsrch.daxpy_(size, d, w.subList(iycn, w.size()), w);
+                    w[inmc] = w[size + cp] * sq;
+                    double d = -w[inmc];
+                    Mcsrch.daxpy_(size, d, w, iycn, w, 0);
                 }
 
                 for (int i = 0; i < size; ++i) {
-                    w.set(i, diag[i] * w.get(i));
+                    w[i] = diag[i] * w[i];
                 }
 
                 for (int i = 0; i < bound; ++i) {
-                    double yr = Mcsrch.ddot_(size, w.subList(iypt + cp * size, w.size()), w);
-                    double beta = w.get(size + cp) * yr;
+                    double yr = Mcsrch.ddot_(size, w, iypt + cp * size, w, 0);
+                    double beta = w[size + cp] * yr;
                     int inmc = size + msize + cp;
-                    beta = w.get(inmc) - beta;
+                    beta = w[inmc] - beta;
                     iscn = ispt + cp * size;
-                    Mcsrch.daxpy_(size, beta, w.subList(iscn, w.size()), w);
+                    Mcsrch.daxpy_(size, beta, w, iscn, w, 0);
                     ++cp;
                     if (cp == msize) {
                         cp = 0;
@@ -141,12 +141,12 @@ public class LbfgsOptimizer {
 
                 if (orthant) {
                     for (int i = 0; i < size; ++i) {
-                        w.set(i, (Mcsrch.sigma(w.get(i)) == Mcsrch.sigma(-v[i]) ? w.get(i) : 0));
+                        w[i] = (Mcsrch.sigma(w[i]) == Mcsrch.sigma(-v[i]) ? w[i] : 0);
                     }
                 }
                 // STORE THE NEW SEARCH DIRECTION
                 for (int i = 0; i < size; ++i) {
-                    w.set(ispt + point * size + i, w.get(i));
+                    w[ispt + point * size + i] = w[i];
                 }
             }
             // OBTAIN THE ONE-DIMENSIONAL MINIMIZER OF THE FUNCTION
@@ -158,14 +158,14 @@ public class LbfgsOptimizer {
                     stp = stp1;
                 }
                 for (int i = 0; i < size; ++i) {
-                    w.set(i, g[i]);
+                    w[i] = g[i];
                 }
             }
             double[] stpArr = {stp};
             int[] infoArr = {info};
             int[] nfevArr = {nfev};
 
-            mcsrch_.mcsrch(size, x, f, v, w.subList(ispt + point * size, w.size()),
+            mcsrch_.mcsrch(size, x, f, v, w, ispt + point * size,
                 stpArr, infoArr, nfevArr, diag);
             stp = stpArr[0];
             info = infoArr[0];
@@ -187,14 +187,14 @@ public class LbfgsOptimizer {
             // COMPUTE THE NEW STEP AND GRADIENT CHANGE
             npt = point * size;
             for (int i = 0; i < size; ++i) {
-                w.set(ispt + npt + i, stp * w.get(ispt + npt + i));
-                w.set(iypt + npt + i, g[i] - w.get(i));
+                w[ispt + npt + i] = stp * w[ispt + npt + i];
+                w[iypt + npt + i] = g[i] - w[i];
             }
             ++point;
             if (point == msize) point = 0;
 
-            double gnorm = Math.sqrt(Mcsrch.ddot_(size, v, v));
-            double xnorm = Math.max(1.0, Math.sqrt(Mcsrch.ddot_(size, x, x)));
+            double gnorm = Math.sqrt(Mcsrch.ddot_(size, v, 0, v, 0));
+            double xnorm = Math.max(1.0, Math.sqrt(Mcsrch.ddot_(size, x, 0, x, 0)));
             if (gnorm / xnorm <= Mcsrch.eps) {
                 return 0; // OK terminated
             }
@@ -215,8 +215,8 @@ public class LbfgsOptimizer {
             iter = info = ispt = isyt = iypt = 0;
         stp = stp1 = 0.0;
         diag_ = null;
-        w_.clear();
         w_ = null;
+        v_ = null;
         mcsrch_ = null;
     }
 
@@ -225,9 +225,8 @@ public class LbfgsOptimizer {
         final int msize = 5;
         final int size = n;
         iflag_ = 0;
-        Double[] wArr = new Double[size * (2 * msize + 1) + 2 * msize];
-        Arrays.fill(wArr, 0.0);
-        w_ = Arrays.asList(wArr);
+        w_ = new double[size * (2 * msize + 1) + 2 * msize];
+        Arrays.fill(w_, 0.0);
         diag_ = new double[size];
         v_ = new double[size];
         return 0;
@@ -241,9 +240,8 @@ public class LbfgsOptimizer {
         int msize = 5;
         if (w_ == null) {
             iflag_ = 0;
-            Double[] wArr = new Double[size * (2 * msize + 1) + 2 * msize];
-            Arrays.fill(wArr, 0.0);
-            w_ = Arrays.asList(wArr);
+            w_ = new double[size * (2 * msize + 1) + 2 * msize];
+            Arrays.fill(w_, 0.0);
             diag_ = new double[size];
             v_ = new double[size];
             if (orthant) {

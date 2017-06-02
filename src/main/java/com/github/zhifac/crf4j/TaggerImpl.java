@@ -61,6 +61,19 @@ public class TaggerImpl extends Tagger {
         penalty_ = new ArrayList<List<Double>>();
     }
 
+    public void clearNodes() {
+        if (node_ != null && !node_.isEmpty()) {
+            for (List<Node> n: node_) {
+                for (int i = 0; i < n.size(); i++) {
+                    if (n.get(i) != null) {
+                        n.get(i).clear();
+                        n.set(i, null);
+                    }
+                }
+            }
+        }
+    }
+
     public void setPenalty(int i, int j, double penalty) {
         if (penalty_.isEmpty()) {
             for (int s = 0; s < node_.size(); s++) {

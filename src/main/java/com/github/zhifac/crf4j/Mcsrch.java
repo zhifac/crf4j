@@ -37,36 +37,15 @@ public class Mcsrch {
         return sigma(x) == sigma(y) ? x : 0.0;
     }
 
-    public static void daxpy_(int n, double da, List<Double> dx, List<Double> dy) {
+    public static void daxpy_(int n, double da, double[] dx, int offsetX, double[] dy, int offsetY) {
         for (int i = 0; i < n; ++i)
-            dy.set(i, dy.get(i) + da * dx.get(i));
+            dy[i + offsetY] += da * dx[i + offsetX];
     }
 
-    public static void daxpy_(int n, double da, double[] dx, double[] dy) {
-        for (int i = 0; i < n; ++i)
-            dy[i] += da * dx[i];
-    }
-
-    public static double ddot_(int size, double[] dx, List<Double> dy) {
+    public static double ddot_(int size, double[] dx, int offsetX, double[] dy, int offsetY) {
         double res = 0.0;
         for (int i = 0; i < size; i++) {
-            res += dx[i] * dy.get(i);
-        }
-        return res;
-    }
-
-    public static double ddot_(int size, List<Double> dx, List<Double> dy) {
-        double res = 0.0;
-        for (int i = 0; i < size; i++) {
-            res += dx.get(i) * dy.get(i);
-        }
-        return res;
-    }
-
-    public static double ddot_(int size, double[] dx, double[] dy) {
-        double res = 0.0;
-        for (int i = 0; i < size; i++) {
-            res += dx[i] * dy[i];
+            res += dx[i + offsetX] * dy[i + offsetY];
         }
         return res;
     }
@@ -248,7 +227,7 @@ public class Mcsrch {
 
     void mcsrch(int size,
                 double[] x,
-                double f, double[] g, List<Double> s,
+                double f, double[] g, double[] s, int startOffset,
                 double[] stp,
                 int[] info, int[] nfev, double[] wa) {
         double p5 = 0.5;
@@ -263,7 +242,7 @@ public class Mcsrch {
                 return;
             }
 
-            dginit = ddot_(size, g, s);
+            dginit = ddot_(size, g, 0, s, startOffset);
             if (dginit >= 0.0) return;
 
             brackt = false;
@@ -306,7 +285,7 @@ public class Mcsrch {
                 }
 
                 for (int j = 0; j < size; ++j) {
-                    x[j] = wa[j] + stp[0] * s.get(j);
+                    x[j] = wa[j] + stp[0] * s[startOffset + j];
                 }
                 info[0] = -1;
                 return;
@@ -314,7 +293,7 @@ public class Mcsrch {
 
             info[0] = 0;
             ++(nfev[0]);
-            double dg = ddot_(size, g, s);
+            double dg = ddot_(size, g, 0, s, startOffset);
             double ftest1 = finit + stp[0] * dgtest;
 
             if (brackt && ((stp[0] <= stmin || stp[0] >= stmax) || infoc == 0)) {

@@ -113,59 +113,57 @@ public abstract class FeatureIndex {
         }
     }
 
-    public boolean applyRule(StringBuffer os, String str, int cur, TaggerImpl tagger) {
-        if (os.length() > 0) {
-            os.delete(0, os.length());
-        }
+    public String applyRule(String str, int cur, TaggerImpl tagger) {
+        StringBuilder sb = new StringBuilder();
         for (String tmp : str.split("%x", -1)) {
             if (tmp.startsWith("U") || tmp.startsWith("B")) {
-                os.append(tmp);
+                sb.append(tmp);
             } else if (tmp.length() > 0) {
                 String[] tuple = tmp.split("]");
                 String[] idx = tuple[0].replace("[", "").split(",");
                 String r = getIndex(idx, cur, tagger);
                 if (r != null) {
-                    os.append(r);
+                    sb.append(r);
                 }
                 if (tuple.length > 1) {
-                    os.append(tuple[1]);
+                    sb.append(tuple[1]);
                 }
             }
         }
 
+        return sb.toString();
+    }
+
+    private boolean buildFeatureFromTempl(List<Integer> feature, List<String> templs, int curPos, TaggerImpl tagger) {
+        for (String tmpl : templs) {
+            String featureID = applyRule(tmpl, curPos, tagger);
+            if (featureID == null || featureID.length() == 0) {
+                System.err.println("format error");
+                return false;
+            }
+            int id = getID(featureID);
+            if (id != -1) {
+                feature.add(id);
+            }
+        }
         return true;
     }
 
     public boolean buildFeatures(TaggerImpl tagger) {
-        StringBuffer os = new StringBuffer();
         List<Integer> feature = new ArrayList<Integer>();
         tagger.setFeature_id_(featureCache_.size());
 
         for (int cur = 0; cur < tagger.size(); cur++) {
-            for (String tmpl : unigramTempls_) {
-                if (!applyRule(os, tmpl, cur, tagger)) {
-                    System.err.println("format error");
-                    return false;
-                }
-                int id = getID(os.toString());
-                if (id != -1) {
-                    feature.add(id);
-                }
+            if (!buildFeatureFromTempl(feature, unigramTempls_, cur, tagger)) {
+                return false;
             }
             feature.add(-1);
             featureCache_.add(feature);
             feature = new ArrayList<Integer>();
         }
         for (int cur = 1; cur < tagger.size(); cur++) {
-            for (String tmpl : bigramTempls_) {
-                if (!applyRule(os, tmpl, cur, tagger)) {
-                    System.err.println("format error");
-                    return false;
-                }
-                int id = getID(os.toString());
-                if (id != -1) {
-                    feature.add(id);
-                }
+            if (!buildFeatureFromTempl(feature, bigramTempls_, cur, tagger)) {
+                return false;
             }
             feature.add(-1);
             featureCache_.add(feature);
