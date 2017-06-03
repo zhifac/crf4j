@@ -212,7 +212,10 @@ public class EncoderFeatureIndex extends FeatureIndex {
         int newMaxId = 0;
         HashMap<Integer, Integer> old2new = new HashMap<Integer, Integer>();
         HashMap<String, Pair<Integer, Integer>> newDic_ = new HashMap<String, Pair<Integer, Integer>>();
-        for (String key: dic_.keySet()) {
+        List<String> ordKeys = new ArrayList<String>(dic_.keySet());
+        // update dictionary in key order, to make result compatible with crfpp
+        Collections.sort(ordKeys);
+        for (String key: ordKeys) {
             Pair<Integer, Integer> featFreq = dic_.get(key);
             if (featFreq.getValue() >= freq) {
                 old2new.put(featFreq.getKey(), newMaxId);
