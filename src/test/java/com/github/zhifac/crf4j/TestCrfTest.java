@@ -10,7 +10,7 @@ import java.net.URL;
 import java.util.Date;
 
 /**
- * Created by ML on 2017/4/3.
+ * Created by zhifac on 2017/4/3.
  */
 public class TestCrfTest {
     public void testModel(String category, double checkThreshold, String testFile,

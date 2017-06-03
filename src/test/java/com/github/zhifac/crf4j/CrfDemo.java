@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by ML on 2017/3/22.
+ * Created by zhifac on 2017/3/22.
  * This is a simple demo app for demonstrating how to use ModelImpl and Tagger
  * to get result tags. This demo reads segmenter model trained with example/seg/train.data,
  * to generate the model, please run TestCrfLearn.testBasicLearnSegModel().

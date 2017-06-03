@@ -18,7 +18,6 @@ public abstract class FeatureIndex {
     protected boolean checkMaxXsize_;
     protected int max_xsize_;
     protected int threadNum_;
-    protected List<List<Integer>> featureCache_;
     protected List<String> unigramTempls_;
     protected List<String> bigramTempls_;
     protected String templs_;
@@ -37,7 +36,6 @@ public abstract class FeatureIndex {
         threadNum_ = 1;
         unigramTempls_ = new ArrayList<String>();
         bigramTempls_ = new ArrayList<String>();
-        featureCache_ = new ArrayList<List<Integer>>();
         y_ = new ArrayList<String>();
     }
 
@@ -274,14 +272,6 @@ public abstract class FeatureIndex {
 
     public void setThreadNum_(int threadNum_) {
         this.threadNum_ = threadNum_;
-    }
-
-    public List<List<Integer>> getFeatureCache_() {
-        return featureCache_;
-    }
-
-    public void setFeatureCache_(List<List<Integer>> featureCache_) {
-        this.featureCache_ = featureCache_;
     }
 
     public List<String> getUnigramTempls_() {

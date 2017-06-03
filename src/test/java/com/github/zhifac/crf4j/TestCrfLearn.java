@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.net.URL;
 
 /**
- * Created by ML on 2017/4/3.
+ * Created by zhifac on 2017/4/3.
  */
 public class TestCrfLearn {
     public void testLearnModel(String category, String[] option) {
