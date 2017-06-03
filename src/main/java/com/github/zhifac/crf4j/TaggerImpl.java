@@ -42,6 +42,7 @@ public class TaggerImpl extends Tagger {
     String lastError;
     PriorityQueue<QueueElement> agenda_;
     List<List<Double>> penalty_;
+    List<List<Integer>> featureCache_;
 
     public TaggerImpl(Mode mode) {
         mode_ = mode;
@@ -59,6 +60,7 @@ public class TaggerImpl extends Tagger {
         result_ = new ArrayList<Integer>();
         agenda_ = null;
         penalty_ = new ArrayList<List<Double>>();
+        featureCache_ = new ArrayList<List<Integer>>();
     }
 
     public void clearNodes() {
@@ -444,6 +446,14 @@ public class TaggerImpl extends Tagger {
         return true;
     }
 
+    public List<List<Integer>> getFeatureCache_() {
+        return featureCache_;
+    }
+
+    public void setFeatureCache_(List<List<Integer>> featureCache_) {
+        this.featureCache_ = featureCache_;
+    }
+
     public int size() {
         return x_.size();
     }
@@ -581,6 +591,7 @@ public class TaggerImpl extends Tagger {
         node_.clear();
         answer_.clear();
         result_.clear();
+        featureCache_.clear();
         Z_ = cost_ = 0.0;
         return true;
     }

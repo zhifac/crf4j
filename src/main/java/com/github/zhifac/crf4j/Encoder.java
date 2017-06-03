@@ -59,19 +59,19 @@ public class Encoder {
                 TaggerImpl tagger = new TaggerImpl(TaggerImpl.Mode.LEARN);
                 tagger.open(featureIndex);
                 TaggerImpl.ReadStatus status = tagger.read(br);
-                if (status == TaggerImpl.ReadStatus.EOF) {
-                    break;
-                } else if (status == TaggerImpl.ReadStatus.ERROR) {
+                if (status == TaggerImpl.ReadStatus.ERROR) {
                     System.err.println("error when reading " + trainFile);
                     return false;
                 }
-                if (!tagger.shrink()) {
-                    System.err.println("fail to build feature index ");
-                    return false;
-                }
                 if (!tagger.empty()) {
+                    if (!tagger.shrink()) {
+                        System.err.println("fail to build feature index ");
+                        return false;
+                    }
                     tagger.setThread_id_(lineNo % threadNum);
                     x.add(tagger);
+                } else if (status == TaggerImpl.ReadStatus.EOF) {
+                    break;
                 } else {
                     continue;
                 }
@@ -84,7 +84,7 @@ public class Encoder {
             e.printStackTrace();
             return false;
         }
-        featureIndex.shrink(freq);
+        featureIndex.shrink(freq, x);
 
         double[] alpha = new double[featureIndex.size()];
         Arrays.fill(alpha, 0.0);

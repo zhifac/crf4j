@@ -205,7 +205,7 @@ public class EncoderFeatureIndex extends FeatureIndex {
 
     }
 
-    public void shrink(int freq) {
+    public void shrink(int freq, List<TaggerImpl> taggers) {
         if (freq <= 1) {
             return;
         }
@@ -221,16 +221,19 @@ public class EncoderFeatureIndex extends FeatureIndex {
             }
         }
 
-        for (int k = 0; k < featureCache_.size(); k++) {
-            List<Integer> featureCacheItem = featureCache_.get(k);
-            List<Integer> newCache = new ArrayList<Integer>();
-            for (Integer it: featureCacheItem) {
-                if (old2new.containsKey(it)) {
-                    newCache.add(old2new.get(it));
+        for (TaggerImpl tagger: taggers) {
+            List<List<Integer>> featureCache = tagger.getFeatureCache_();
+            for (int k = 0; k < featureCache.size(); k++) {
+                List<Integer> featureCacheItem = featureCache.get(k);
+                List<Integer> newCache = new ArrayList<Integer>();
+                for (Integer it : featureCacheItem) {
+                    if (old2new.containsKey(it)) {
+                        newCache.add(old2new.get(it));
+                    }
                 }
+                newCache.add(-1);
+                featureCache.set(k, newCache);
             }
-            newCache.add(-1);
-            featureCache_.set(k, newCache);
         }
         maxid_ = newMaxId;
         dic_ = newDic_;

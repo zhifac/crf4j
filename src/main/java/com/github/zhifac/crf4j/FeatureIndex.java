@@ -151,14 +151,15 @@ public abstract class FeatureIndex {
 
     public boolean buildFeatures(TaggerImpl tagger) {
         List<Integer> feature = new ArrayList<Integer>();
-        tagger.setFeature_id_(featureCache_.size());
+        List<List<Integer>> featureCache = tagger.getFeatureCache_();
+        tagger.setFeature_id_(featureCache.size());
 
         for (int cur = 0; cur < tagger.size(); cur++) {
             if (!buildFeatureFromTempl(feature, unigramTempls_, cur, tagger)) {
                 return false;
             }
             feature.add(-1);
-            featureCache_.add(feature);
+            featureCache.add(feature);
             feature = new ArrayList<Integer>();
         }
         for (int cur = 1; cur < tagger.size(); cur++) {
@@ -166,7 +167,7 @@ public abstract class FeatureIndex {
                 return false;
             }
             feature.add(-1);
-            featureCache_.add(feature);
+            featureCache.add(feature);
             feature = new ArrayList<Integer>();
         }
         return true;
@@ -174,8 +175,9 @@ public abstract class FeatureIndex {
 
     public void rebuildFeatures(TaggerImpl tagger) {
         int fid = tagger.getFeature_id_();
+        List<List<Integer>> featureCache = tagger.getFeatureCache_();
         for (int cur = 0; cur < tagger.size(); cur++) {
-            List<Integer> f = featureCache_.get(fid++);
+            List<Integer> f = featureCache.get(fid++);
             for (int i = 0; i < y_.size(); i++) {
                 Node n = new Node();
                 n.clear();
@@ -186,7 +188,7 @@ public abstract class FeatureIndex {
             }
         }
         for (int cur = 1; cur < tagger.size(); cur++) {
-            List<Integer> f = featureCache_.get(fid++);
+            List<Integer> f = featureCache.get(fid++);
             for (int j = 0; j < y_.size(); j++) {
                 for (int i = 0; i < y_.size(); i++) {
                     Path p = new Path();

@@ -78,6 +78,12 @@ public class TestCrfTest {
     }
 
     @Test
+    public void testFeatureFreqSegTestdata() {
+        String[] trainopts = {"-f", "3", "-c", "4.0"};
+        testModel("seg", 0.7, "test.data", true, trainopts, null);
+    }
+
+    @Test
     public void testBasicNPModel() {
         testModel("basenp", 1.0, "train.data", true, null, null);
     }

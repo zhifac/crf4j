@@ -70,7 +70,7 @@ public class CrfTest {
                     if (TaggerImpl.ReadStatus.ERROR == status) {
                         System.err.println("read error");
                         return false;
-                    } else if (TaggerImpl.ReadStatus.EOF == status) {
+                    } else if (TaggerImpl.ReadStatus.EOF == status && tagger.empty()) {
                         break;
                     }
                     if (!tagger.parse()) {

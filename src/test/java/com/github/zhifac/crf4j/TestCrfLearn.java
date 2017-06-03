@@ -25,7 +25,6 @@ public class TestCrfLearn {
             args = newargs;
         }
         assert CrfLearn.run(args);
-
     }
 
     @Test
