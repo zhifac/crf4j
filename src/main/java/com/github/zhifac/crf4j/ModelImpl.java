@@ -77,7 +77,7 @@ public class ModelImpl extends Model {
                 return false;
             }
         } else {
-            InputStream stream = this.getClass().getResourceAsStream(model);
+            InputStream stream = this.getClass().getClassLoader().getResourceAsStream(model);
             if (stream != null) {
                 return featureIndex_.open(stream);
             } else {
